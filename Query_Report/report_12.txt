@@ -1,0 +1,39 @@
+SET linesize 200
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Details Avenue within a Month'
+PROMPT
+
+ACCEPT v_firstdate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the first date: '
+ACCEPT v_seconddate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the second date: '
+
+TTITLE LEFT 'Details Avenue from &v_firstdate to &v_seconddate' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+SET UNDERLINE =
+COLUMN "Total Sales" FORMAT $99999999.99 HEADING "Total Sales|(RM)";
+COLUMN "Room Booked" FORMAT 99999 HEADING "Total Room Booked";
+COLUMN "Facility Booked" FORMAT 99999 HEADING "Total Facility Booked";
+COLUMN "Service Requested" FORMAT 99999 HEADING "Service Requested";
+
+SELECT COUNT(B.room_id) AS "Room Booked", 
+COUNT(B.facility_id) AS "Facility Booked", 
+SUM(S.quantity) AS "Service Requested", 
+SUM(Bi.total_amount) AS "Total Sales"
+FROM Bill Bi FULL OUTER JOIN Booking B
+ON (B.booking_id = Bi.booking_id)
+FULL OUTER JOIN Customer C
+ON (C.customer_id = B.customer_id)
+FULL OUTER JOIN Request R
+ON (R.customer_id = C.customer_id)
+FULL OUTER JOIN Service S
+ON (S.service_id = R.service_id)
+WHERE B.arrival_date BETWEEN '&v_firstdate' AND '&v_seconddate';
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

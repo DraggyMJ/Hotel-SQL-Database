@@ -1,0 +1,32 @@
+SET linesize 200
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+SET verify OFF;
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Total Sales for Each Service Category Requested by Customers within a Month'
+PROMPT
+
+ACCEPT v_firstdate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the first date: '
+ACCEPT v_seconddate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the second date: '
+
+COLUMN "Service Price" FORMAT $999.99 HEADING "Service Price(RM)";
+COLUMN SC.service_price*SUM(S.quantity) FORMAT $999999.99 HEADING "Total Sales|(RM)";  
+
+TTITLE LEFT 'Total Sales for Each Service Category Requested by Customers from &v_firstdate TO &v_seconddate' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+SELECT S.service_type AS "Service Type", 
+SUM(S.quantity) AS "Quantity", SC.service_price AS "Service Price", SC.service_price*SUM(S.quantity)
+FROM Service S JOIN Service_Category SC
+ON (SC.service_type = S.service_type)
+JOIN Request Req
+ON (Req.service_id = S.service_id)
+WHERE Req.request_date BETWEEN '&v_firstdate' AND '&v_seconddate'
+GROUP BY S.service_type,SC.service_price
+ORDER BY S.service_type,SC.service_price;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+TTITLE OFF

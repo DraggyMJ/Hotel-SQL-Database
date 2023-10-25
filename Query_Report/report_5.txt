@@ -1,0 +1,27 @@
+SET linesize 200
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Top N Facilities Booked by Customers in a Year'
+PROMPT
+ACCEPT v_numberRows NUMBER FORMAT 9 PROMPT ' Enter Row: '
+
+TTITLE LEFT 'Top '&v_numberRows' Facilities Booked by Customers in a Year' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+COLUMN COUNT(B.facility_id) FORMAT 999 HEADING 'Total Quantity'
+
+
+SELECT * FROM (SELECT F.facility_type AS "Facility Category", COUNT(B.facility_id)
+FROM Facilities F JOIN Booking B
+ON (B.facility_id = F.facility_id)
+GROUP BY F.facility_type
+ORDER BY COUNT(B.facility_id) DESC)
+WHERE ROWNUM <= '&v_numberRows';
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

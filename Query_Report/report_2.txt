@@ -1,0 +1,27 @@
+SET linesize 200
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+SET verify OFF;
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Top N Room Types Booked by Customers in a Year'
+PROMPT
+ACCEPT v_numberRows NUMBER FORMAT 9 PROMPT ' Enter Row: '
+
+COLUMN room_type FORMAT A9 HEADING "ROOM TYPE"
+COLUMN COUNT(b.room_id) FORMAT 99 HEADING "Total Quantity Room Booked in a Year";
+
+TTITLE LEFT 'Top '&v_numberRows' Room Types Booked by Customers in a Year' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+SELECT * FROM (SELECT R.room_type, COUNT(B.room_id)
+FROM Room R JOIN Booking B 
+ON (B.room_id = R.room_id)
+GROUP BY R.room_type
+ORDER BY COUNT(B.room_id) DESC)
+WHERE ROWNUM <= '&v_numberRows';
+
+CLEAR COLUMNS
+CLEAR BREAKS
+TTITLE OFF

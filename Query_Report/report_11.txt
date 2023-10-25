@@ -1,0 +1,27 @@
+SET linesize 120
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Top N Month as Peak Season of the Hotel'
+PROMPT
+ACCEPT v_numberRows NUMBER FORMAT 99 PROMPT ' Enter Row: '
+
+TTITLE LEFT 'Top '&v_numberRows' Month as Peak Season of the Hotel'
+
+COLUMN COUNT(B.room_id) FORMAT 99 HEADING 'TOTAL ROOM AMOUNT'
+
+SELECT * FROM (SELECT TO_CHAR(TO_DATE(EXTRACT(MONTH FROM B.arrival_date),'MM'),'MONTH') AS "MONTH"
+, COUNT(B.room_id)
+FROM Room R JOIN Booking B
+ON (B.room_id = R.room_id)
+GROUP BY TO_CHAR(TO_DATE(EXTRACT(MONTH FROM B.arrival_date),'MM'),'MONTH')
+ORDER BY COUNT(B.room_id) DESC)
+WHERE ROWNUM <= '&v_numberRows';
+
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

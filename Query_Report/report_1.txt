@@ -1,0 +1,32 @@
+SET linesize 200
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+SET verify OFF;
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Total Sales for Each Room Type Booked by Customer within a Month'
+PROMPT
+
+ACCEPT v_firstdate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the first date: '
+ACCEPT v_seconddate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the second date: '
+
+COLUMN "Price" FORMAT $9999.99  HEADING "Room Price|(RM)";
+COLUMN RT.room_price*COUNT(R.room_id) FORMAT $999999.99 HEADING "Total Sales|(RM)";
+
+TTITLE LEFT 'Total Sales for Each Room Type Booked by Customer from &v_firstdate TO &v_seconddate' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+SELECT R.room_type, COUNT(R.room_id) AS "Room Quantity", 
+RT.room_price AS "Price", RT.room_price*COUNT(R.room_id)
+FROM Room R JOIN Room_Type RT
+ON (RT.room_type = R.room_type)
+JOIN Booking B
+ON (B.room_id = R.room_id)
+WHERE B.arrival_date BETWEEN '&v_firstdate' AND '&v_seconddate'
+GROUP BY R.room_type, RT.room_price
+ORDER BY R.room_type, RT.room_price;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+TTITLE OFF

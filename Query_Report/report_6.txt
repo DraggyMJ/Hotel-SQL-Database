@@ -1,0 +1,27 @@
+SET linesize 200
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Top N Service Requested Customers in a Year'
+PROMPT
+ACCEPT v_numberRows NUMBER FORMAT 9 PROMPT ' Enter Row: '
+
+TTITLE LEFT 'Top '&v_numberRows' Service Requested by Customers in a Year' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+COLUMN Quantity FORMAT 999 HEADING 'Total Quantity'
+
+BREAK ON REPORT
+
+SELECT * FROM (SELECT service_type AS "Service Category", SUM(quantity) As "Quantity"
+FROM  Service 
+GROUP BY service_type
+ORDER BY SUM(quantity) DESC)
+WHERE ROWNUM <= &v_numberRows;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

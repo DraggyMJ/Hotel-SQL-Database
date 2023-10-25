@@ -1,0 +1,37 @@
+SET linesize 200
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Total Revenue by Each Staff within a Month'
+PROMPT
+
+ACCEPT v_firstdate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the first date: '
+ACCEPT v_seconddate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the second date: '
+
+COLUMN ID FORMAT A12 HEADING "Employee ID";
+COLUMN "SST" FORMAT $9999.99 HEADING "TOTAL SST";
+COLUMN "SUB" FORMAT $99999.99 HEADING "SUBTOTAL";
+COLUMN "Total" FORMAT $9999999.99 HEADING "TOTAL Sales|(RM)";
+
+BREAK ON REPORT
+COMPUTE SUM LABEL TOTAL OF TOTAL Sales|(RM) ON REPORT
+
+TTITLE LEFT 'Total Sales from &v_firstdate TO &v_seconddate' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+SELECT E.employee_id AS "ID", E.emp_name AS "Employee Name", 
+SUM(Bi.SST) as "SST", SUM(Bi.total_amount) as "SUB", SUM(Bi.SST)+SUM(Bi.total_amount) AS "Total"
+FROM Employee E JOIN Bill Bi
+ON (Bi.employee_id = E.employee_id)
+Join Booking B
+ON (B.booking_id = Bi.booking_id)
+WHERE B.arrival_date BETWEEN '&v_firstdate' AND '&v_seconddate'
+GROUP BY E.employee_id,E.emp_name
+ORDER By E.employee_id;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

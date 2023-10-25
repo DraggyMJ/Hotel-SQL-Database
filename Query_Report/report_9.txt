@@ -1,0 +1,30 @@
+SET linesize 280
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Customer Average Spending in a Year'
+PROMPT
+ACCEPT v_customer FORMAT A4 PROMPT 'Enter Customer ID: '
+
+TTITLE LEFT 'Average '&v_customer' Spending in a Year' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+COLUMN AVG(SST) FORMAT $99.99 HEADING "AVERAGE SST";
+COLUMN AVG(total_amount) FORMAT $9999.99 HEADING "AVERAGE SUBTOTAL";
+COLUMN AVG(SST)+AVG(total_amount) FORMAT $9999.99 HEADING "AVERAGE TOTAL";
+
+SELECT C.customer_id AS "ID", C.first_name, C.last_name, AVG(SST)+AVG(total_amount)
+FROM Customer C JOIN Booking B
+ON (B.customer_id = C.customer_id)
+JOIN Bill Bi
+ON (Bi.booking_id = B.booking_id)
+WHERE  C.customer_id = '&v_customer'
+GROUP BY C.customer_id, C.first_name, C.last_name
+ORDER BY C.customer_id;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

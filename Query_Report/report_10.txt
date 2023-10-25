@@ -1,0 +1,32 @@
+SET linesize 330
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Customers Booked for Average How Many Days'
+PROMPT
+ACCEPT v_customer FORMAT A4 PROMPT 'Enter Customer ID: '
+
+TTITLE LEFT 'Customers '&v_customer' Booked for Average How Many Days' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+BREAK ON "ID" SKIP 1
+COMPUTE AVG OF "DAY" ON "ID"
+COLUMN "ID" FORMAT A12 HEADING "CUSTOMER ID"
+COLUMN "DAY" FORMAT 9 HEADING "DAY BOOKED";
+COLUMN "DATE1" FORMAT A25 HEADING "ARRIVAL DATE";
+COLUMN "DATE2" FORMAT A25 HEADING "DEPARTURE DATE";
+
+SELECT C.customer_id AS "ID", B.arrival_date AS "DATE1", B.departure_date AS "DATE2", 
+B.departure_date-B.arrival_date AS "DAY"
+FROM Customer C JOIN Booking B
+ON (B.customer_id = C.customer_id)
+WHERE  C.customer_id = '&v_customer'
+GROUP BY C.customer_id, B.arrival_date, B.departure_date
+ORDER BY C.customer_id;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+CLEAR COMPUTES
+TTITLE OFF

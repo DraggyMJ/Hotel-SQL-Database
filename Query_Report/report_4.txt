@@ -1,0 +1,30 @@
+SET linesize 200
+SET pagesize 90
+ALTER SESSION SET NLS_DATE_FORMAT = 'DD/MM/YYYY';
+SET verify OFF;
+
+-- 01/01/2022 & 30/01/2022
+
+PROMPT 'Total Sales for Each Facility Type Booked by Customer within a Month'
+PROMPT
+
+ACCEPT v_firstdate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the first date: '
+ACCEPT v_seconddate DATE FORMAT 'DD/MM/YYYY' PROMPT ' Enter the second date: '
+
+COLUMN "Price" FORMAT $9999.99  HEADING "Facility Price|(RM)";
+COLUMN F.facility_fees*COUNT(B.facility_id) FORMAT $999999.99 HEADING "Total Sales|(RM)";
+
+TTITLE LEFT 'Total Sales for Each Facility Type Booked by Customer from &v_firstdate TO &v_seconddate' - 
+RIGHT 'Page:' FORMAT 999 SQL.PNO SKIP
+
+SELECT F.facility_type, COUNT(B.facility_id) AS "Quantity", 
+F.facility_fees AS "Price", F.facility_fees*COUNT(B.facility_id)
+FROM Facilities F JOIN Booking B
+ON (B.facility_id = F.facility_id)
+WHERE B.arrival_date BETWEEN '&v_firstdate' AND '&v_seconddate'
+GROUP BY F.facility_type, F.facility_fees
+ORDER BY F.facility_type, F.facility_fees;
+
+CLEAR COLUMNS
+CLEAR BREAKS
+TTITLE OFF
